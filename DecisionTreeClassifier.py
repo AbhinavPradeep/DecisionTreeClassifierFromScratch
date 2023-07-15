@@ -5,12 +5,14 @@ from operator import itemgetter
 
 class DecisionTreeClassifier:
 
+    #Massive bottleneck
     def CalculateImpurity(self,Labels: list):
         UniqueLabels = []
         for Label in Labels:
             if (Label, Labels.count(Label)) not in UniqueLabels:
                 UniqueLabels.append((Label, Labels.count(Label)))
         Impurity = 1-(sum([(j/(len(Labels)))**2 for i, j in UniqueLabels]))
+        print(Impurity)
         return Impurity
 
 
@@ -25,6 +27,12 @@ class DecisionTreeClassifier:
             Parent)-self.CalculateAverageImpurity(Labels1, Labels2))
         return InformationGain
 
+    def GenerateProbability(self,Labels:list):
+        LabelsAndProbability = []
+        for Label in Labels:
+            if (Label, Labels.count(Label)) not in LabelsAndProbability:
+                LabelsAndProbability.append((Label, (Labels.count(Label))/len(Labels)))
+        return LabelsAndProbability
 
     def BuildTree(self,DataTable: list[list]) -> Node:
         HeadNode = Node()
@@ -57,9 +65,10 @@ class DecisionTreeClassifier:
             QuestionEffectiveness.append((Q, Gain, TrueLabels, FalseLabels, TrueIndices, FalseIndices))
         #print(QuestionEffectiveness)
         if max(QuestionEffectiveness, key=itemgetter(1))[1] == 0:
-            return None
+            return Node(self.GenerateProbability(Labels))
         BestQuestion = max(QuestionEffectiveness, key=itemgetter(1))
         #print(BestQuestion)
+        print(BestQuestion[0])
         CurrentNode.Question = BestQuestion[0]
         TrueLabels = BestQuestion[2]
         FalseLabels = BestQuestion[3]
@@ -76,5 +85,5 @@ class DecisionTreeClassifier:
         else:
             #print(FalseLabels)
             FalseRows = [DataTable[i] for i in BestQuestion[5]]
-            HeadNode.RightNode = self.BuildTree(FalseRows)
+            HeadNode.LeftNode = self.BuildTree(FalseRows)
         return HeadNode

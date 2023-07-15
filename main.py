@@ -1,6 +1,18 @@
 from Node import Node
 from DecisionTreeClassifier import DecisionTreeClassifier
 
+import csv
+
+with open('shrooms.csv', newline='') as f:
+    reader = csv.reader(f)
+    data = list(reader)
+
+FormattedData = []
+for Row in data:
+    Row.append(Row.pop(0))
+    Row.pop(4)
+    FormattedData.append(Row)
+
 Table = [["Yellow", "3", "Apple"],
          ["Green", "3", "Apple"],
          ["Red", "1", "Grape"],
@@ -10,7 +22,7 @@ Table = [["Yellow", "3", "Apple"],
 
 Classifier = DecisionTreeClassifier()
 
-Tree = Classifier.BuildTree(Table)
+Tree = Classifier.BuildTree(FormattedData)
 
 def printTree(node:Node, level=0):
     if node != None:
