@@ -2,15 +2,18 @@ import numpy as np
 from Node import Node
 from Question import Question
 from operator import itemgetter
+import collections
 
 class DecisionTreeClassifier:
 
-    #Massive bottleneck
+    #Massive bottleneck, fixed with collections.Counter
     def CalculateImpurity(self,Labels: list):
         UniqueLabels = []
-        for Label in Labels:
-            if (Label, Labels.count(Label)) not in UniqueLabels:
-                UniqueLabels.append((Label, Labels.count(Label)))
+        UniqueLabels = collections.Counter(Labels)
+        UniqueLabels = list(UniqueLabels.items())
+        # for Label in Labels:
+        #     if (Label, Labels.count(Label)) not in UniqueLabels:
+        #         UniqueLabels.append((Label, Labels.count(Label)))
         Impurity = 1-(sum([(j/(len(Labels)))**2 for i, j in UniqueLabels]))
         print(Impurity)
         return Impurity
@@ -65,7 +68,8 @@ class DecisionTreeClassifier:
             QuestionEffectiveness.append((Q, Gain, TrueLabels, FalseLabels, TrueIndices, FalseIndices))
         #print(QuestionEffectiveness)
         if max(QuestionEffectiveness, key=itemgetter(1))[1] == 0:
-            return Node(self.GenerateProbability(Labels))
+            FinalQuestion = Question(-1,self.GenerateProbability(Labels))
+            return Node(FinalQuestion)
         BestQuestion = max(QuestionEffectiveness, key=itemgetter(1))
         #print(BestQuestion)
         print(BestQuestion[0])
@@ -74,14 +78,16 @@ class DecisionTreeClassifier:
         FalseLabels = BestQuestion[3]
         #True goes right
         if self.CalculateImpurity(TrueLabels) == 0:
-            HeadNode.RightNode = Node(TrueLabels[0])
+            FinalQuestion = Question(-1,TrueLabels[0])
+            HeadNode.RightNode = Node(FinalQuestion)
         else:
             #print(TrueLabels)
             TrueRows = [DataTable[i] for i in BestQuestion[4]]
             HeadNode.RightNode = self.BuildTree(TrueRows)
         #False goes left
         if self.CalculateImpurity(FalseLabels) == 0:
-            HeadNode.LeftNode = Node(FalseLabels[0])
+            FinalQuestion = Question(-1,FalseLabels[0])
+            HeadNode.LeftNode = Node(FinalQuestion)
         else:
             #print(FalseLabels)
             FalseRows = [DataTable[i] for i in BestQuestion[5]]

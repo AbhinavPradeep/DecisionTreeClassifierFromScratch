@@ -1,5 +1,6 @@
 from Node import Node
 from DecisionTreeClassifier import DecisionTreeClassifier
+import pickle
 
 import csv
 
@@ -35,3 +36,7 @@ def printTree(node:Node, level=0):
 #print(CalculateGain(["L1","L1","L2","L3","L3"],["L3"],["L1","L1","L2","L3"]))
 
 printTree(Tree)
+
+with open('ShroomTree.pkl', 'wb') as f:
+     pickle.dump(Tree, f)
+f.close()
